@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesan Untukmu ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Simple, fast cursor */
+        body {
+            cursor: none;
+        }
+
+        .cursor {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            background: #ff6b9d;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.1s ease;
+        }
+
+        .cursor.click {
+            transform: scale(2);
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 107, 157, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.2s ease;
+        }
+
+        /* Reset cursor on mobile */
+        @media (max-width: 768px) {
+            body { cursor: auto; }
+            .cursor, .cursor-trail { display: none; }
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 10s ease infinite;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .page.slide-left {
+            transform: translateX(-100%);
+        }
+
+        .container {
+            max-width: 480px;
+            width: 90%;
+            padding: 20px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            position: relative;
+        }
+
+        .title {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
+            to { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.3); }
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #f8b500, #ffa500);
+            box-shadow: 0 4px 15px rgba(248, 181, 0, 0.4);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(248, 181, 0, 0.6);
+        }
+
+        .btn-small {
+            padding: 12px 25px;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: #ff6b9d;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .error-message {
+            color: #ff4757;
+            font-weight: 500;
+            margin-top: 15px;
+            background: rgba(255, 71, 87, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .countdown-number {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #ff4757;
+            margin: 20px 0;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .wrong-emoji {
+            font-size: 3rem;
+            margin: 15px 0;
+            animation: wobble 0.8s infinite;
+        }
+
+        @keyframes wobble {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .message-content {
+            text-align: left;
+            line-height: 1.7;
+        }
+
+        .message-title {
+            font-size: 2.2rem;
+            color: #ff6b9d;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .message-text {
+            font-size: 1rem;
+            color: white;
+            margin-bottom: 25px;
+        }
+
+        .message-text p {
+            margin-bottom: 12px;
+        }
+
+        .hearts-display {
+            text-align: center;
+            font-size: 1.8rem;
+            margin: 25px 0;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Floating hearts - simplified */
+        .floating-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 1.2rem;
+            color: rgba(255, 107, 157, 0.7);
+            animation: float-heart 4s linear infinite;
+        }
+
+        @keyframes float-heart {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-50px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Music player */
+        .music-player {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            font-size: 1.2rem;
+        }
+
+        .music-player:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .music-player.playing {
+            animation: music-pulse 1.5s infinite;
+        }
+
+        @keyframes music-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 107, 157, 0.5); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { width: 95%; }
+            .card { padding: 30px 20px; }
+            .title { font-size: 2rem; }
+            .subtitle { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Simple cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-trail"></div>
+    <div class="floating-hearts"></div>
+
+    <!-- Landing Page -->
+    <div id="landing" class="page active">
+        <div class="container">
+            <div class="card">
+                <h1 class="title">✨ Ada Pesan Untukmu ✨</h1>
+                <p class="subtitle">
+                    Seseorang yang sangat spesial telah meninggalkan pesan khusus untukmu. 
+                    Siap untuk membaca kejutan manis yang menanti? 💝
+                </p>
+                <button class="btn" id="openMessageBtn">
+                    Buka Pesan 💌
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Page -->
+    <div id="login" class="page">
+        <div class="container">
+            <div class="card">
+                <h1 class="title">🔐 Masukkan Kunci Hati</h1>
+                <p class="subtitle">
+                    Masukkan password kaks, pass : <strong>"tebak coba 1-10 cuma 5 angka aja"</strong> 😊
+                </p>
+                <div class="form-group">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        class="form-input"
+                        placeholder="Password rahasia..."
+                    >
+                </div>
+                <button class="btn btn-secondary" id="loginBtn">
+                    Buka Kunci ✨
+                </button>
+                <div id="error" class="error-message" style="display: none;"></div>
+                <button class="btn btn-small" id="backFromLoginBtn">
+                    ← Kembali
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wrong Password Page -->
+    <div id="wrong" class="page">
+        <div class="container">
+            <div class="card">
+                <h1 class="title">Yahaha! Salah Dong! 🤣</h1>
+                <div class="wrong-emoji">🤪</div>
+                <p class="subtitle">
+                    Wkwkwk passwordnya salah banget! Emang gak tau ya? 😏<br><br>
+                    Masa sih gak bisa nebak password yang gampang begini?<br>
+                    Payah banget deh... 🙄
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Page -->
+    <div id="message" class="page">
+        <div class="container">
+            <div class="card">
+                <div class="message-content">
+                    <h2 class="message-title">💝 Pesan Dari Hati</h2>
+                    <div class="message-text">
+                        <p><strong>Halo ikan </strong></p>
+                        
+                        <p> ga tau mau kasih text apa soalnya aku gabut ni biar ga ngantuk</p>
+                        
+                        <p><strong>yahahahahahahahahhaahha, luh cantik. 💕</strong></p>
+                        
+                        <p><em>- mwehehehehehehehehehehehehe</em></p>
+                    </div>
+                    <div class="hearts-display">
+                        💖 ✨ 💕 ✨ 💗 ✨ 💝
+                    </div>
+                </div>
+                <button class="btn btn-small" id="backFromMessageBtn">
+                    ← Kembali ke Awal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Music Player -->
+    <div class="music-player" id="musicPlayer" title="Toggle Music">
+        <span id="musicIcon">🎵</span>
+    </div>
+
+    <!-- Hidden Audio -->
+    <audio id="bgMusic" loop preload="none">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Simple, fast implementation
+        const correctPassword = "12345";
+        let currentPage = 'landing';
+        let isPlaying = false;
+        let countdownTimer;
+
+        // Simple cursor - no lag
+        let cursor = document.querySelector('.cursor');
+        let cursorTrail = document.querySelector('.cursor-trail');
+        let mouseX = 0, mouseY = 0;
+        let trailX = 0, trailY = 0;
+
+        // Only on desktop
+        if (window.innerWidth > 768) {
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                cursor.style.left = mouseX - 6 + 'px';
+                cursor.style.top = mouseY - 6 + 'px';
+            });
+
+            document.addEventListener('mousedown', () => {
+                cursor.classList.add('click');
+            });
+
+            document.addEventListener('mouseup', () => {
+                cursor.classList.remove('click');
+            });
+
+            // Simple trail animation
+            function animateTrail() {
+                trailX += (mouseX - trailX) * 0.3;
+                trailY += (mouseY - trailY) * 0.3;
+                cursorTrail.style.left = trailX - 4 + 'px';
+                cursorTrail.style.top = trailY - 4 + 'px';
+                requestAnimationFrame(animateTrail);
+            }
+            animateTrail();
+        }
+
+        // Page navigation - simplified
+        function showPage(pageId) {
+            document.getElementById(currentPage).classList.remove('active');
+            document.getElementById(pageId).classList.add('active');
+            currentPage = pageId;
+        }
+
+        // Event listeners
+        document.getElementById('openMessageBtn').addEventListener('click', () => {
+            showPage('login');
+            setTimeout(() => document.getElementById('password').focus(), 300);
+        });
+
+        document.getElementById('backFromLoginBtn').addEventListener('click', () => {
+            showPage('landing');
+            document.getElementById('password').value = '';
+            document.getElementById('error').style.display = 'none';
+        });
+
+        document.getElementById('backFromMessageBtn').addEventListener('click', () => {
+            showPage('landing');
+        });
+
+        document.getElementById('loginBtn').addEventListener('click', checkPassword);
+
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPassword();
+        });
+
+        // Login logic
+        function checkPassword() {
+            const password = document.getElementById('password').value.trim();
+            const errorDiv = document.getElementById('error');
+
+            if (password === '') {
+                showError('Masukkan password dulu ya! 😊');
+                return;
+            }
+
+            if (password === correctPassword) {
+                errorDiv.style.display = 'none';
+                showPage('message');
+                startHeartEffect();
+            } else {
+                showError('Password salah! Coba lagi...');
+                showPage('wrong');
+                // Auto redirect to YouTube after 3 seconds
+                setTimeout(() => {
+                    window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+                    setTimeout(() => showPage('landing'), 1000);
+                }, 3000);
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        // Heart effect - simplified
+        function startHeartEffect() {
+            const container = document.querySelector('.floating-hearts');
+            const hearts = ['❤️', '💕', '💖', '💗', '💝'];
+            
+            const heartInterval = setInterval(() => {
+                if (currentPage !== 'message') {
+                    clearInterval(heartInterval);
+                    return;
+                }
+
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                
+                container.appendChild(heart);
+
+                setTimeout(() => heart.remove(), 4000);
+            }, 800);
+        }
+
+        // Music control
+        document.getElementById('musicPlayer').addEventListener('click', () => {
+            const music = document.getElementById('bgMusic');
+            const icon = document.getElementById('musicIcon');
+            const player = document.getElementById('musicPlayer');
+
+            if (isPlaying) {
+                music.pause();
+                icon.textContent = '🔇';
+                player.classList.remove('playing');
+            } else {
+                music.play().catch(() => console.log('Music blocked'));
+                icon.textContent = '🎵';
+                player.classList.add('playing');
+            }
+            isPlaying = !isPlaying;
+        });
+
+        // Clean up on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Website loaded successfully');
+        });
+    </script>
+</body>
+</html>
